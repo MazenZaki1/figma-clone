@@ -42,7 +42,7 @@ export const authConfig = {
       },
       authorize: async (credentials) => {
         try {
-          const { email, password } = await signInSchema.parseAsync(credentials); // checks if the email and password and strings
+          const { email, password } = await signInSchema.parseAsync(credentials); // checks if the email and password are strings
           const user = await db.user.findUnique({ // finds the user in the database using the email entered by the user
             where: {
               email: email

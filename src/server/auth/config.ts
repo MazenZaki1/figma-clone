@@ -1,6 +1,9 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { type DefaultSession, type NextAuthConfig } from "next-auth";
-import DiscordProvider from "next-auth/providers/discord";
+import Credentials from "next-auth/providers/credentials";
+import { signInSchema } from "~/schemas";
+import bcrypt from "bcryptjs";
+// import DiscordProvider from "next-auth/providers/discord";
 
 import { db } from "~/server/db";
 
@@ -32,7 +35,33 @@ declare module "next-auth" {
  */
 export const authConfig = {
   providers: [
-    DiscordProvider,
+    Credentials({ // credentials is the next-auth provider for authentication using email and password
+      credentials: { // credentials is the object that contains the fields of email and password entered by the user
+        email: {},
+        password: {},
+      },
+      authorize: async (credentials) => {
+        try {
+          const { email, password } = await signInSchema.parseAsync(credentials); // checks if the email and password and strings
+          const user = await db.user.findUnique({ // finds the user in the database using the email entered by the user
+            where: {
+              email: email
+            }
+          })
+
+
+          const isValidPassword = await bcrypt.compare(password, user?.password ?? "") // checks if the password entered by the user is the same as the password in the database
+          if (!isValidPassword) {
+            return null;
+          }
+
+          return user;
+        } catch (error) {
+          return null;
+        }
+      },
+    }),
+    // DiscordProvider,
     /**
      * ...add more providers here.
      *
@@ -42,14 +71,17 @@ export const authConfig = {
      *
      * @see https://next-auth.js.org/providers/github
      */
-  ],
+  ], 
+  session: {
+    strategy: "jwt" // when user logs in a JWT token is created and stored in the session
+  },
   adapter: PrismaAdapter(db),
   callbacks: {
-    session: ({ session, user }) => ({
+    session: ({ session, token }) => ({
       ...session,
       user: {
         ...session.user,
-        id: user.id,
+        id: token.sub,
       },
     }),
   },

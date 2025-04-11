@@ -5,7 +5,6 @@ export const signUpSchema = object({
     password: string({ required_error: "Password is required" })
         .min(8, "Password must be at least 8 characters long")
         .max(32, "Password must be at most 32 characters long"),
-    confirmPassword: string({ required_error: "Confirm password is required" })
 });
 
 export const signInSchema = object({

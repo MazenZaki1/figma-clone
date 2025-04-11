@@ -5,6 +5,28 @@ import { ZodError } from "zod";
 import { signUpSchema } from "~/schemas";
 import { db } from "~/server/db";
 import { redirect } from "next/navigation";
+import { signIn, signOut } from "~/server/auth";
+import { AuthError, CredentialsSignin } from "next-auth";
+
+export async function signout() {
+    await signOut();
+}
+
+export async function authenticate(prevState: string | undefined, formData: FormData,) {
+    try {
+        await signIn("credentials", formData)
+    } catch (error) {
+        if (error instanceof AuthError) {
+            switch (error.type) {
+                case "CredentialsSignin":
+                    return "Invalid credentials";
+                default:
+                    return "An unknown error occurred";
+            }
+        }
+        throw error;
+    }
+    }
 
 
 export async function register(prevState: string | undefined, formData: FormData,) {

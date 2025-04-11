@@ -13,7 +13,7 @@ export default function Page() {
     <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-sm space-y-6">
         <h1 className="text-center text-6xl font-semibold">Sign Up</h1>
-              <form action={formAction} className="space-y-4">
+        <form action={formAction} className="space-y-4">
           <div className="flex flex-col space-y-2">
             <label htmlFor="email" className="text-sm font-medium">
               Email
@@ -39,13 +39,14 @@ export default function Page() {
           </div>
           <button
             type="submit"
+            disabled={isPending}
             className="w-full rounded-md bg-blue-600 py-2 font-semibold text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
           >
-            Sign Up
+            {isPending ? "Signing Up..." : "Sign Up"}
           </button>
           <p className="text-center text-xs text-gray-600">
             Already have an account?{" "}
-            <Link className="text-blue-600 hover:underline" href="/login">
+            <Link className="text-blue-600 hover:underline" href="/signin">
               Log in
             </Link>
           </p>
